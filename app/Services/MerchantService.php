@@ -7,7 +7,6 @@ use App\Models\Affiliate;
 use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\User;
-
 class MerchantService
 {
     /**
@@ -21,6 +20,22 @@ class MerchantService
     public function register(array $data): Merchant
     {
         // TODO: Complete this method
+        $user = new User;
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['api_key'];
+        $user->type = User::TYPE_MERCHANT;
+        $user->save();
+
+		$merchant = new Merchant;
+        $merchant->user_id = $user->id;
+        $merchant->domain = $data['domain'];
+        $merchant->display_name = $data['name'];
+        $merchant->turn_customers_into_affiliates = 1;
+        $merchant->default_commission_rate = 0.1;
+        $merchant->save();
+
+        return $merchant;
     }
 
     /**
@@ -29,9 +44,13 @@ class MerchantService
      * @param array{domain: string, name: string, email: string, api_key: string} $data
      * @return void
      */
-    public function updateMerchant(User $user, array $data)
+    public function updateMerchant(User $user, array $data): void 
     {
         // TODO: Complete this method
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['api_key'];
+        $user->update();
     }
 
     /**
@@ -43,7 +62,14 @@ class MerchantService
      */
     public function findMerchantByEmail(string $email): ?Merchant
     {
-        // TODO: Complete this method
+        // TODO: Complete this method        
+        $user = User::select('id')
+                           ->where('email', '=', $email)
+                           ->get();
+        $merchant = Merchant::select('*')
+                           ->where('user_id', '=', $user->id)
+                           ->get();
+        return $merchant|null;
     }
 
     /**
@@ -56,5 +82,6 @@ class MerchantService
     public function payout(Affiliate $affiliate)
     {
         // TODO: Complete this method
+        Order::where('affiliate_id', '=', $affiliate->id)->update(['payout_status' => Order::STATUS_PAID]);
     }
 }

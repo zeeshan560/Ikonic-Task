@@ -9,6 +9,7 @@ use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Services\ApiService;
 
 class AffiliateService
 {
@@ -28,5 +29,13 @@ class AffiliateService
     public function register(Merchant $merchant, string $email, string $name, float $commissionRate): Affiliate
     {
         // TODO: Complete this method
+        $api_service = new ApiService;
+        $affiliate = new Affiliate;
+        $affiliate->user_id = $merchant->user_id;
+        $affiliate->merchant_id = $merchant->id;
+        $affiliate->commission_rate = $commissionRate;
+        $affiliate->discount_code = $api_service->createDiscountCode($merchant);
+        $affiliate->save();
+        return $affiliate;
     }
 }

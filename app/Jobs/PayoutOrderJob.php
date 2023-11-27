@@ -34,5 +34,13 @@ class PayoutOrderJob implements ShouldQueue
     public function handle(ApiService $apiService)
     {
         // TODO: Complete this method
+        try {
+            $apiService = new ApiService();
+            $order_id = $apiService->sendPayout($apiService['email'],$apiService['amount']);
+            Order::where('id', '=', $order_id)->update(['payout_status' => Order::STATUS_PAID]);
+        } catch (\Exception $e) {
+            return;
+        }
+        
     }
 }

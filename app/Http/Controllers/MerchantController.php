@@ -7,6 +7,7 @@ use App\Services\MerchantService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\Order;
 
 class MerchantController extends Controller
 {
@@ -23,5 +24,10 @@ class MerchantController extends Controller
     public function orderStats(Request $request): JsonResponse
     {
         // TODO: Complete this method
+        $orders = DB::table('orders')->whereBetween('created_at', [$from, $to])->get();
+        $countorders = count($orders);
+        $commission_owed = DB::table('orders')->where('payout_status',Order::STATUS_UNPAID)->sum('commission_owed');
+        $revenue = DB::table('orders')->sum('subtotal');
+        return json_encode(array('count'=>$countorders,'commission_owed'=>$commission_owed,'revenue'=>$revenue));
     }
 }

@@ -67,4 +67,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(Affiliate::class);
     }
+	
+	public static function insertUser(array $data)
+	{		
+		$user = new User;
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['api_key'];
+        $user->type = User::TYPE_MERCHANT;
+        $user->save();
+		return $user->id;		
+	}
 }
